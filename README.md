@@ -27,7 +27,7 @@ logger.Debug("User id: %d", 12345)
 logger.Log("SEVERITY", "User id: %d", 12345)
 ```
 
-#### Installation
+### Installing
 
 From the root of the project run:
 
