@@ -7,7 +7,18 @@ import (
 	"time"
 )
 
-type Logger struct {
+type Logger interface {
+	Emerg(string, ...interface{})
+	Alert(string, ...interface{})
+	Critical(string, ...interface{})
+	Error(string, ...interface{})
+	Warning(string, ...interface{})
+	Notice(string, ...interface{})
+	Info(string, ...interface{})
+	Debug(string, ...interface{})
+}
+
+type L struct {
 	*log.Logger
 	sequenceNumber int
 	verbose        bool
@@ -16,8 +27,8 @@ type Logger struct {
 
 const BASE_FORMAT_STR = "%%s[origin software=\"%s\" swVersion=\"%s\" x-program=\"%s\" x-sequence=\"%%d\" x-pid=\"%d\" x-severity=\"%%s\" x-timestamp=\"%%s\"] %%s"
 
-func New(stream io.Writer, verbose bool, software string, version string, program string, pid int) *Logger {
-	return &Logger{
+func New(stream io.Writer, verbose bool, software string, version string, program string, pid int) *L {
+	return &L{
 		Logger:         log.New(stream, "", 0),
 		sequenceNumber: 0,
 		verbose:        verbose,
@@ -25,7 +36,7 @@ func New(stream io.Writer, verbose bool, software string, version string, progra
 	}
 }
 
-func (l *Logger) Log(severity string, msg string, vargs ...interface{}) {
+func (l *L) log(severity string, msg string, vargs ...interface{}) {
 	l.Printf(l.formatString,
 		severity,
 		l.sequenceNumber,
@@ -36,29 +47,29 @@ func (l *Logger) Log(severity string, msg string, vargs ...interface{}) {
 	l.sequenceNumber++
 }
 
-func (l *Logger) Emerg(msg string, vargs ...interface{}) {
-	l.Log("EMERG", msg, vargs...)
+func (l *L) Emerg(msg string, vargs ...interface{}) {
+	l.log("EMERG", msg, vargs...)
 }
-func (l *Logger) Alert(msg string, vargs ...interface{}) {
-	l.Log("ALERT", msg, vargs...)
+func (l *L) Alert(msg string, vargs ...interface{}) {
+	l.log("ALERT", msg, vargs...)
 }
-func (l *Logger) Critical(msg string, vargs ...interface{}) {
-	l.Log("CRIT", msg, vargs...)
+func (l *L) Critical(msg string, vargs ...interface{}) {
+	l.log("CRIT", msg, vargs...)
 }
-func (l *Logger) Error(msg string, vargs ...interface{}) {
-	l.Log("ERR", msg, vargs...)
+func (l *L) Error(msg string, vargs ...interface{}) {
+	l.log("ERR", msg, vargs...)
 }
-func (l *Logger) Warning(msg string, vargs ...interface{}) {
-	l.Log("WARN", msg, vargs...)
+func (l *L) Warning(msg string, vargs ...interface{}) {
+	l.log("WARN", msg, vargs...)
 }
-func (l *Logger) Notice(msg string, vargs ...interface{}) {
-	l.Log("NOTICE", msg, vargs...)
+func (l *L) Notice(msg string, vargs ...interface{}) {
+	l.log("NOTICE", msg, vargs...)
 }
-func (l *Logger) Info(msg string, vargs ...interface{}) {
-	l.Log("INFO", msg, vargs...)
+func (l *L) Info(msg string, vargs ...interface{}) {
+	l.log("INFO", msg, vargs...)
 }
-func (l *Logger) Debug(msg string, vargs ...interface{}) {
+func (l *L) Debug(msg string, vargs ...interface{}) {
 	if l.verbose {
-		l.Log("DEBUG", msg, vargs...)
+		l.log("DEBUG", msg, vargs...)
 	}
 }

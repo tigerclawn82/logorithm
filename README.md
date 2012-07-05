@@ -22,9 +22,6 @@ logger.Warning("User id: %d", 12345)
 logger.Notice("User id: %d", 12345)
 logger.Info("User id: %d", 12345)
 logger.Debug("User id: %d", 12345)
-
-// The Log method is used by all the previous ones and can be used like this
-logger.Log("SEVERITY", "User id: %d", 12345)
 ```
 
 ### Installing

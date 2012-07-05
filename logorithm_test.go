@@ -42,34 +42,34 @@ func TestLog(t *testing.T) {
 	logger := New(&buffer, VERBOSE, SOFTWARE, VERSION, PROGRAM, PID)
 
 	oldSeqN := logger.sequenceNumber
-	logger.Log("TOKEN", "")
+	logger.log("TOKEN", "")
 	if logger.sequenceNumber != oldSeqN+1 {
 		t.Error("sequenceNumber wasn't incremented")
 	}
 	buffer.Reset()
 
-	logger.Log("TOKEN", "MSG")
+	logger.log("TOKEN", "MSG")
 	match, _ := regexp.MatchString("^TOKEN.*MSG\n$", buffer.String())
 	if !match {
 		t.Error("Log format mismatch")
 	}
 	buffer.Reset()
 
-	logger.Log("TOKEN", "%s", "MSG")
+	logger.log("TOKEN", "%s", "MSG")
 	match, _ = regexp.MatchString("^TOKEN.*MSG\n$", buffer.String())
 	if !match {
 		t.Error("Interpolation didn't work")
 	}
 	buffer.Reset()
 
-	logger.Log("TOKEN", "")
+	logger.log("TOKEN", "")
 	match, _ = regexp.MatchString("x-timestamp=\"\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}\\.\\d+\\+\\d{2}:\\d{2}\"", buffer.String())
 	if !match {
 		t.Errorf("Timestamp format should be time.RFC3339Nano\nGot: %s", buffer.String())
 	}
 	buffer.Reset()
 
-	logger.Log("TOKEN", "")
+	logger.log("TOKEN", "")
 	match, _ = regexp.MatchString("x-severity=\"TOKEN\"", buffer.String())
 	if !match {
 		t.Errorf("Severity mismatch\nGot: %s", buffer.String())
