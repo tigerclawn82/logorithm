@@ -140,3 +140,30 @@ func TestLog(t *testing.T) {
 	}
 	buffer.Reset()
 }
+
+// Should be run with GOMAXPROCS greater than 1 like `go test -cpu 4`
+func TestThreadSafeSequenceNumber(t *testing.T) {
+	// chosen to run quickly with cpu=1 and give enough chance for a race
+	const factor = 200
+	var buf bytes.Buffer
+	join := make(chan struct{})
+
+	logger := New(&buf, VERBOSE, SOFTWARE, VERSION, PROGRAM, PID)
+
+	for i := 0; i < factor; i++ {
+		go func() {
+			for j := 0; j < factor; j++ {
+				logger.Info("go go go speedracer")
+			}
+			join <- struct{}{}
+		}()
+	}
+
+	for i := 0; i < factor; i++ {
+		<-join
+	}
+
+	if logger.sequenceNumber != factor*factor {
+		t.Error("sequenceNumber has race condition")
+	}
+}

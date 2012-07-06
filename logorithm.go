@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"io"
 	"log"
+	"sync"
 	"time"
 )
 
@@ -20,6 +21,7 @@ type Logger interface {
 
 type L struct {
 	*log.Logger
+	sync.Mutex
 	sequenceNumber int
 	verbose        bool
 	formatString   string
@@ -36,15 +38,22 @@ func New(stream io.Writer, verbose bool, software string, version string, progra
 	}
 }
 
+func (l *L) increment() int {
+	l.Lock()
+	defer l.Unlock()
+
+	l.sequenceNumber++
+	return l.sequenceNumber
+}
+
 func (l *L) log(severity string, msg string, vargs ...interface{}) {
 	l.Printf(l.formatString,
 		severity,
-		l.sequenceNumber,
+		l.increment(),
 		severity,
 		time.Now().Format(time.RFC3339Nano),
 		fmt.Sprintf(msg, vargs...),
 	)
-	l.sequenceNumber++
 }
 
 func (l *L) Emerg(msg string, vargs ...interface{}) {
