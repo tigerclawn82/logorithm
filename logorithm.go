@@ -38,6 +38,20 @@ func New(stream io.Writer, verbose bool, software string, version string, progra
 	}
 }
 
+func Instance(stream io.Writer, verbose bool, software string, version string, program string, pid int, logFmt string) *L {
+	if logFmt != "" {
+		logFmt = fmt.Sprintf(logFmt, software, version, program, pid)
+	} else {
+		logFmt = fmt.Sprintf(BASE_FORMAT_STR, software, version, program, pid)
+	}
+	return &L{
+		Logger:         log.New(stream, "", 0),
+		sequenceNumber: 0,
+		verbose:        verbose,
+		formatString:   logFmt,
+	}
+}
+
 func (l *L) increment() int {
 	l.Lock()
 	defer l.Unlock()
