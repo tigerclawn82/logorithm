@@ -27,7 +27,7 @@ type L struct {
 	formatString   string
 }
 
-const BASE_FORMAT_STR = "%%s[origin software=\"%s\" swVersion=\"%s\" x-program=\"%s\" x-sequence=\"%%d\" x-pid=\"%d\" x-severity=\"%%s\" x-timestamp=\"%%s\"] %%s"
+const BASE_FORMAT_STR = "Level       :%%s\nSoftware    :%s\nVersion     :%s\nProgram     :%s\nSequence    :%%d\nProcess ID  :%d\nTimeStamp   :%%s\nMessage     :%%s\n--------------------------------------------------------------------------\n"
 
 func New(stream io.Writer, verbose bool, software string, version string, program string, pid int) *L {
 	return &L{
@@ -35,20 +35,6 @@ func New(stream io.Writer, verbose bool, software string, version string, progra
 		sequenceNumber: 0,
 		verbose:        verbose,
 		formatString:   fmt.Sprintf(BASE_FORMAT_STR, software, version, program, pid),
-	}
-}
-
-func Instance(stream io.Writer, verbose bool, software string, version string, program string, pid int, logFmt string) *L {
-	if logFmt != "" {
-		logFmt = fmt.Sprintf(logFmt, software, version, program, pid)
-	} else {
-		logFmt = fmt.Sprintf(BASE_FORMAT_STR, software, version, program, pid)
-	}
-	return &L{
-		Logger:         log.New(stream, "", 0),
-		sequenceNumber: 0,
-		verbose:        verbose,
-		formatString:   logFmt,
 	}
 }
 
@@ -64,7 +50,6 @@ func (l *L) log(severity string, msg string, vargs ...interface{}) {
 	l.Printf(l.formatString,
 		severity,
 		l.increment(),
-		severity,
 		time.Now().Format(time.RFC3339Nano),
 		fmt.Sprintf(msg, vargs...),
 	)
